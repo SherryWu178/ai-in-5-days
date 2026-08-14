@@ -1,0 +1,342 @@
+{
+    "facilities": [
+        {
+            "canteen_name": "Shiok",
+            "location": {
+                "building": "SG-SIN-MBC2",
+                "floor": "7",
+                "distance": "13 ft"
+            },
+            "stations": [
+                {
+                    "station_name": "Masala Station",
+                    "closing_time": "2:00 PM",
+                    "items": [
+                        {
+                            "name": "Vankaya Fry",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Eggplant, Mung Dal, Shallot, Tomato, Garlic, Ginger, Coconut, Coriander, Green Chilli, Turmeric Powder, Cumin Powder, Coriander Powder, Garam Masala, Baba Chilli Powder, Cumin Seed, Black Mustard Seed, Curry Leaf, Cooking Oil, Fine Salt"
+                        },
+                        {
+                            "name": "Chettinad Mutton Curry",
+                            "dietary_tags": [],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Mutton, Garlic, Ginger, Tomato, Shallot, Green Chilli, Curry Leaf, Garam Masala, Coriander Seed, Fennel Seed, Black Pepper Coarse, Turmeric Powder, Dried Red Chilli, 1L Lemon Juice, Fine Salt, Cooking Oil, Baba Chilli Powder, Bay Leaf, Cumin Seed, Cinnamon Stick, Clove, Green Cardamon, Star Anise, Black Pepper Whole"
+                        }
+                    ]
+                },
+                {
+                    "station_name": "Asian Station",
+                    "closing_time": "2:00 PM",
+                    "items": [
+                        {
+                            "name": "Preserved Radish Steamed Minced Pork with Steamed Rice",
+                            "dietary_tags": [],
+                            "allergens": "Cereals containing gluten, Soybeans",
+                            "ingredients": "Thai Hom Mali Rice, Pork [PORK], Turnip, Black Fungus Strip, Tian Jin Preserved Vegetable, Spring Onion, Mushroom Seasoning Granules, Fine Salt, Sugar, Pepper Powder, Light Soya Sauce Grade 1, Sesame Oil, Cabbage, Carrot, Shiitake Mushroom, Beancurd Stick, Ginger, Dry Lily Flower Kim Chang, Red Bean Curd, Cooking Oil, Vegetarian Oyster Sauce, Potato Starch, Lotus Root, Chye Sim"
+                        },
+                        {
+                            "name": "Wok-fried Chye Sim with White Fungus",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Chye Sim, Carrot, Baby Corn, White Fungus, Garlic, Cooking Oil, Mushroom Seasoning Granules, Fine Salt, Sugar"
+                        }
+                    ]
+                },
+                {
+                    "station_name": "Steamed Station",
+                    "items": [
+                        {
+                            "name": "Steamed Firm Tofu with Olive Vegetable",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "Cereals containing gluten, Soybeans, Sulphites",
+                            "ingredients": "Tau Kwa, Red Chilli, Spring Onion, Olive Vegetable, Sweet Chai Poh, Garlic, Cooking Oil, Sugar, Potato Starch"
+                        }
+                    ]
+                },
+                {
+                    "station_name": "International Station",
+                    "closing_time": "2:00 PM",
+                    "items": [
+                        {
+                            "name": "Spaghetti with Chicken Meatball",
+                            "dietary_tags": [],
+                            "allergens": "Cereals containing gluten, Egg, Milk, Sulphites",
+                            "ingredients": "Tomato Sauce (Red Onion, Basil, Chopped Tomato, Tomato Pronto, Pomace Olive Oil, Fine Salt, Black Pepper Coarse, Garlic, Sugar), Baked Chicken Meatball (Chicken Meatball, Shredded Thyme, Pomace Olive Oil), Spaghetti, Pomace Olive Oil, Fine Salt, Baby Spinach"
+                        },
+                        {
+                            "name": "Grated Parmesan Cheese",
+                            "dietary_tags": [
+                                "Vegetarian"
+                            ],
+                            "allergens": "Milk",
+                            "ingredients": "Gran Amici"
+                        }
+                    ]
+                },
+                {
+                    "station_name": "Green Eats Station",
+                    "closing_time": "2:00 PM",
+                    "items": [
+                        {
+                            "name": "Spaghetti with Plant-based Minced \"Meatball\"",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "Cereals containing gluten, Soybeans",
+                            "ingredients": "Tomato Sauce (Red Onion, Basil, Tomato Pronto, Pomace Olive Oil, Fine Salt, Chopped Tomato, Garlic, Black Pepper Coarse, Sugar), Plant-based Minced \"Meatball\" (Plant Based Minced Meat, Onion, Carrot, Celery, Fine Salt, Shredded Thyme, Glutinous Rice Flour, Black Pepper Coarse), Wholemeal Spaghetti, Pomace Olive Oil, Fine Salt, Baby Spinach"
+                        },
+                        {
+                            "name": "Plant-based Minced \"Meatball\" with Tomato Sauce",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "Cereals containing gluten, Soybeans",
+                            "ingredients": "Plant-based Minced \"Meatball\" (Plant Based Minced Meat, Onion, Carrot, Celery, Fine Salt, Black Pepper Coarse, Shredded Thyme, Glutinous Rice Flour, Garlic), Tomato Sauce (Red Onion, Basil, Tomato Pronto, Pomace Olive Oil, Fine Salt, Chopped Tomato, Garlic, Sugar, Black Pepper Coarse)"
+                        }
+                    ]
+                },
+                {
+                    "station_name": "Clean Eats Station",
+                    "closing_time": "2:00 PM",
+                    "items": [
+                        {
+                            "name": "Steamed Spinach",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Frozen Spinach Leaf Ball, Fine Salt"
+                        },
+                        {
+                            "name": "Roasted Pumpkin & Butternut Squash",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Pumpkin, Butternut Squash, Pomace Olive Oil, Fine Salt, Black Pepper Coarse"
+                        },
+                        {
+                            "name": "Steamed Paprika Fish",
+                            "dietary_tags": [],
+                            "allergens": "Fish",
+                            "ingredients": "Premium Hoki Fillet, Sweet Paprika Powder"
+                        }
+                    ]
+                },
+                {
+                    "station_name": "Salad Station",
+                    "items": [
+                        {
+                            "name": "Greek-style Salad",
+                            "dietary_tags": [
+                                "Vegetarian"
+                            ],
+                            "allergens": "Milk",
+                            "ingredients": "Arugula, Tomato, Red Onion, Celery, Japanese Cucumber, Capsicum, Sliced Black Olive, Blancello Salad Cubes in Oil with Herbs, Lemon & Oregano Dressing..."
+                        },
+                        {
+                            "name": "Roasted Mixed Mushroom & Barley Salad",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "Cereals containing gluten, Sulphites",
+                            "ingredients": "Mesclun, Barley, Red Onion, Carrot, Roasted Mushroom..."
+                        },
+                        {
+                            "name": "Poached Gochujang Baby Octopus",
+                            "dietary_tags": [],
+                            "allergens": "Cereals containing gluten, Fish, Soybeans",
+                            "ingredients": "Frozen Whole Cleaned Baby Octopus, Gochujang, Kikkoman Soy Sauce, Garlic, Ginger, Sesame Oil..."
+                        },
+                        {
+                            "name": "Mexican-style Guacamole",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Avocado Pulp, Red Onion, Tomato, 1L Lime Juice, Pomace Olive Oil, Cumin Powder, Black Pepper Coarse, Fine Salt"
+                        }
+                    ]
+                },
+                {
+                    "station_name": "Soup Station",
+                    "items": [
+                        {
+                            "name": "ABC Soup",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Potato, Onion, Carrot, Tomato, Corn, Mushroom Seasoning Granules, Fine Salt, Sugar, Pepper Powder"
+                        },
+                        {
+                            "name": "Chicken Velouté Soup",
+                            "dietary_tags": [],
+                            "allergens": "Cereals containing gluten, Milk",
+                            "ingredients": "Chicken, Chicken Stock, Onion, Garlic, Celery, Potato, Carrot, Pure Creamery Butter Unsalted, Wheat Flour Ikan Terbang, Pomace Olive Oil..."
+                        }
+                    ]
+                },
+                {
+                    "station_name": "Juice Bar & Drinks (L7 Shiok's Bar)",
+                    "items": [
+                        {
+                            "name": "Jasmine Hibiscus Kombucha",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Jasmine Hibiscus Kombucha [ALCOHOL]"
+                        },
+                        {
+                            "name": "Masala Chai (without Sugar)",
+                            "dietary_tags": [
+                                "Vegetarian"
+                            ],
+                            "allergens": "Milk",
+                            "ingredients": "Red Label Tea, Fresh Milk, Ginger, Cinnamon Stick, Black Peppercorn, Cardamom, Bay Leaf"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "canteen_name": "StrEAT",
+            "location": {
+                "building": "SG-SIN-MBC2",
+                "floor": "30",
+                "distance": "357 ft"
+            },
+            "stations": [
+                {
+                    "station_name": "Wok Toss",
+                    "closing_time": "2:00 PM",
+                    "items": [
+                        {
+                            "name": "Nasi Goreng Kampung",
+                            "dietary_tags": [],
+                            "allergens": "Cereals containing gluten, Crustaceans (Shellfish), Egg, Fish, Milk, Soybeans",
+                            "ingredients": "Thai Hom Mali Rice, Pasteurized Liquid Egg, Bird's Eye Red Chilli, Fried Ikan Bilis, Garlic, Cooking Oil, Dark Soya Sauce Grade 1, Light Soya Sauce Grade 1, Fine Salt, Sugar, Pepper Powder, Spring Onion, Sambal Belachan Chilli Paste"
+                        },
+                        {
+                            "name": "Spicy Tomato Chicken (Ayam Masak Merah)",
+                            "dietary_tags": [],
+                            "allergens": "Cereals containing gluten, Soybeans",
+                            "ingredients": "Chicken, Turmeric Powder, Sugar, Fine Salt, Cooking Oil, Shallot Paste, Ginger Paste, Garlic Paste, Chilli Paste, Tomato Ketchup, Lemongrass, Cinnamon Stick, Star Anise, Makrut Lime Leaf, Green Cardamon, Onion, Tomato"
+                        },
+                        {
+                            "name": "Fried Hard Boiled Egg with Sweet Soy Sauce",
+                            "dietary_tags": [
+                                "Vegetarian"
+                            ],
+                            "allergens": "Cereals containing gluten, Egg, Soybeans, Sulphites",
+                            "ingredients": "Hard Boiled Egg, Cooking Oil, Green Chilli, Onion, Sweet Soy Sauce, Sugar, Fine Salt, Dark Soya Sauce Grade 1, Curry Leaf, Potato Starch"
+                        }
+                    ]
+                },
+                {
+                    "station_name": "Roast & Grill",
+                    "closing_time": "2:00 PM",
+                    "items": [
+                        {
+                            "name": "Clam with Fennel Butter Sauce",
+                            "dietary_tags": [],
+                            "allergens": "Fish, Milk, Sulphites",
+                            "ingredients": "Frozen Cooked Whole White Clam, Fennel, Garlic, Pure Creamery Butter Unsalted, Cherry Tomato, White Cooking Wine [ALCOHOL], Onion, Parsley"
+                        },
+                        {
+                            "name": "Roasted Beef",
+                            "dietary_tags": [
+                                "Raw/Undercooked"
+                            ],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Beef [BEEF], Pomace Olive Oil, Garlic, Thyme, Rosemary, Fine Salt, Black Pepper Coarse, OKSE Beef Demi-glaze [BEEF], Parsley"
+                        },
+                        {
+                            "name": "Mixed Bean & Kale Stew",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Garbanzo Beans, Dark Red Kidney Bean, Pomace Olive Oil, Onion, Leek, Carrot, Celery, Chilli Flake, Smoked Paprika Powder, Shredded Oregano, Garlic, Maple Syrup, Tomato Pronto, Fine Salt, Black Pepper Coarse, Parsley, Kale"
+                        }
+                    ]
+                },
+                {
+                    "station_name": "MixIt",
+                    "closing_time": "2:00 PM",
+                    "items": [
+                        {
+                            "name": "Steamed Herbed Chicken",
+                            "dietary_tags": [],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Chicken, 1L Lime Juice, Pomace Olive Oil, Garlic, Fine Salt, Parsley, Black Pepper Coarse, Bay Leaf, Thyme, Chives"
+                        },
+                        {
+                            "name": "Steamed Bulgur Wheat with Confit Shallot",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "Cereals containing gluten",
+                            "ingredients": "Yellow Bulgur Wheat, Shallot Confit (Shallot, Corn Oil, Garlic, Thyme, Bay Leaf)"
+                        }
+                    ]
+                },
+                {
+                    "station_name": "Steam Kitchen",
+                    "items": [
+                        {
+                            "name": "Steamed Har Kao",
+                            "dietary_tags": [],
+                            "allergens": "Cereals containing gluten, Crustaceans (Shellfish), Egg, Fish, Soybeans",
+                            "ingredients": "Har Kao [PORK], Cooking Oil"
+                        },
+                        {
+                            "name": "Deep-fried Wasabi Shrimp Ball",
+                            "dietary_tags": [],
+                            "allergens": "Cereals containing gluten, Crustaceans (Shellfish), Egg, Fish",
+                            "ingredients": "Shrimp Balls With Wasabi, Cooking Oil"
+                        },
+                        {
+                            "name": "Mushroom Congee",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Congee Base (Thai Hom Mali Rice, Sugar, Fine Salt, Pepper Powder), Shimeji Mushroom, Sesame Oil, Spring Onion"
+                        }
+                    ]
+                },
+                {
+                    "station_name": "Beverage Bar & Sweet Treats",
+                    "items": [
+                        {
+                            "name": "Grapefruit, Lemongrass & Thyme Spa Water",
+                            "dietary_tags": [
+                                "Vegan"
+                            ],
+                            "allergens": "No declared allergens",
+                            "ingredients": "Grapefruit, Lemongrass, Thyme"
+                        },
+                        {
+                            "name": "Lychee Rose Cake",
+                            "dietary_tags": [
+                                "Vegetarian"
+                            ],
+                            "allergens": "Cereals containing gluten, Egg, Milk, Soybeans",
+                            "ingredients": "Lychee Rose Cake"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

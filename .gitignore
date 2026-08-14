@@ -1,0 +1,33 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Environment and secrets
+.env
+*.env.local
+
+# Testing and caching
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ADK CLI and logs
+.google-agents-cli/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# ADK session database
+.adk/
+*.db
