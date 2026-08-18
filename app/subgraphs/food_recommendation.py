@@ -16,7 +16,12 @@
 
 from google.adk.workflow import START, Workflow
 
-from ..nodes.planning import planning_node
+from ..nodes.planning import (
+    llm_dish_selection_node,
+    macro_sizing_and_verification_node,
+    menu_filtering_node,
+    planning_node,
+)
 from ..nodes.pre_clarification import pre_clarification_node
 from ..nodes.reverification import finish_recommendation_node, user_reverification_node
 from ..state import NutritionState
@@ -26,18 +31,27 @@ food_recommendation_subgraph = Workflow(
     name="Food_Recommendation_SubGraph",
     description=(
         "SubGraph for Singapore canteen food recommendations: gathers missing intake info, "
-        "calculates macro targets, plans dishes with USDA FoodData Central calculations, "
+        "calculates macro targets, filters menu items, uses LLM for culinary dish selection, "
+        "sizes portions deterministically with USDA FoodData Central calculations, "
         "and handles user reverification and replanning loops."
     ),
     state_schema=NutritionState,
     edges=[
         (START, pre_clarification_node),
-        (pre_clarification_node, planning_node),
-        (planning_node, user_reverification_node),
+        (
+            pre_clarification_node,
+            {
+                "plan": menu_filtering_node,
+                "verify": user_reverification_node,
+            },
+        ),
+        (menu_filtering_node, llm_dish_selection_node),
+        (llm_dish_selection_node, macro_sizing_and_verification_node),
+        (macro_sizing_and_verification_node, user_reverification_node),
         (
             user_reverification_node,
             {
-                "replan": planning_node,
+                "replan": pre_clarification_node,
                 "approved": finish_recommendation_node,
             },
         ),

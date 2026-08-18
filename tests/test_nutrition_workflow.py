@@ -153,21 +153,40 @@ def test_planning_combinations_structure():
 
 @pytest.mark.asyncio
 async def test_reverification_routing():
-    """Verify User-Reverification node routing for agreement vs disagreement."""
-    ctx = MockContext()
+    """Verify User-Reverification node Phase 1 confirmation pause, agreement route, and ingredient protest replanning."""
+    ctx = MockContext(state={})
 
-    # Case 1: Agreement
+    # Phase 1: Initial presentation arrives with meal plans list -> should emit message and RequestInput
+    events_initial = [e async for e in user_reverification_node([{"combination_id": 1}], ctx)]
+    assert len(events_initial) == 2
+    assert "Do these dishes look good to confirm" in events_initial[0].content.parts[0].text
+    assert events_initial[0].actions.route is None
+    assert hasattr(events_initial[1], "interrupt_id")  # RequestInput object
+
+    # Update state to simulate Phase 2 arrival
+    ctx.state["plan_presented_for_verification"] = True
+
+    # Phase 2 Case 1: Agreement
     events_agreed = [e async for e in user_reverification_node("Looks delicious! I approve combination 1.", ctx)]
     assert len(events_agreed) > 0
-    last_event = events_agreed[-1]
-    assert last_event.actions.route == "approved"
+    assert events_agreed[-1].actions.route == "approved"
 
-    # Case 2: Disagreement / Modifications
-    events_replan = [e async for e in user_reverification_node("I want smaller portions and no pork please", ctx)]
+    # Phase 2 Case 2: Ingredient Protest / Modifications ("remove fish")
+    ctx2 = MockContext(state={"plan_presented_for_verification": True, "dietary_restrictions": []})
+    events_replan = [e async for e in user_reverification_node("I don't want fish, remove fish please", ctx2)]
     assert len(events_replan) > 0
-    last_replan_event = events_replan[-1]
-    assert last_replan_event.actions.route == "replan"
-    assert "user_feedback" in last_replan_event.actions.state_delta
+    last_replan = events_replan[-1]
+    assert last_replan.actions.route == "replan"
+    assert "user_feedback" in last_replan.actions.state_delta
+    # Verify fish was extracted to dietary_restrictions so menu_filtering_node removes it
+    assert "fish" in last_replan.actions.state_delta["dietary_restrictions"]
+    # Verify entertaining customer-facing replanning message
+    assert "Heard loud and clear!" in last_replan.content.parts[0].text
+    assert "Excluding protested item(s): fish" in last_replan.content.parts[0].text
+
+    # Verify pre_clarification_node fast-forwards directly to 'verify' when plan is presented
+    events_fastforward = [e async for e in pre_clarification_node("Looks delicious!", ctx)]
+    assert events_fastforward[0].actions.route == "verify"
 
 
 def test_graph_topology_validation():
@@ -176,3 +195,99 @@ def test_graph_topology_validation():
     assert food_recommendation_subgraph.name == "Food_Recommendation_SubGraph"
     assert len(nutrition_specialist_workflow.edges) >= 2
     assert len(food_recommendation_subgraph.edges) >= 4
+
+
+@pytest.mark.asyncio
+async def test_pre_clarification_node_typo_resilience():
+    """Verify pre_clarification_node accurately extracts goals even with typos like 'pretain'."""
+    # Test high protein typo from interactive session
+    ctx1 = MockContext()
+    events1 = [e async for e in pre_clarification_node("can you recomend me a high pretain diet", ctx1)]
+    last_event1 = events1[-1]
+    assert last_event1.output["nutrition_goal"] == "High Protein for Muscle Gain"
+    assert last_event1.output["target_macros"]["min_protein_g"] >= 50.0
+
+    # Test fat loss goal
+    ctx2 = MockContext()
+    events2 = [e async for e in pre_clarification_node("want to cut down fat and lose weight at Shiok", ctx2)]
+    last_event2 = events2[-1]
+    assert last_event2.output["nutrition_goal"] == "Cut Down Body Fat"
+    assert last_event2.output["canteen_preference"] == "Shiok"
+
+
+def test_deterministic_macro_verification_and_scaling():
+    """Verify hybrid candidate dish scaling keeps total calories under ceiling and hits protein targets."""
+    from app.nodes.planning import (
+        CandidateCombination,
+        CandidateDish,
+        _verify_and_scale_candidate_combination,
+    )
+
+    menu_by_name = {
+        "Steamed Firm Tofu with Olive Vegetable": {
+            "name": "Steamed Firm Tofu with Olive Vegetable",
+            "station": "Steamed Station",
+            "ingredients": "Tau Kwa, Olive Vegetable, Garlic",
+            "dietary_tags": ["Vegan"],
+        }
+    }
+
+    cand = CandidateCombination(
+        canteen_name="Shiok",
+        combination_title="Candidate Protein Combo",
+        dishes=[
+            CandidateDish(
+                name="Steamed Firm Tofu with Olive Vegetable",
+                portion_grams=500.0,  # Deliberately huge to test calorie ceiling scaling
+            )
+        ],
+        nutritional_rationale="Test candidate",
+    )
+
+    # When target calories ceiling is 300 kcal
+    target_macros = {"max_calories_kcal": 300.0}
+    scaled = _verify_and_scale_candidate_combination(1, cand, menu_by_name, target_macros)
+    assert scaled is not None
+    assert scaled.total_calories_kcal <= 300.0
+    assert scaled.dishes[0].portion_grams < 500.0
+
+
+@pytest.mark.asyncio
+async def test_sequential_planning_pipeline_nodes():
+    """Verify the 3 modular ADK planning nodes execute sequentially and update state accurately."""
+    from app.nodes.planning import (
+        llm_dish_selection_node,
+        macro_sizing_and_verification_node,
+        menu_filtering_node,
+    )
+
+    ctx = MockContext(
+        state={
+            "canteen_preference": "Shiok",
+            "nutrition_goal": "High Protein for Muscle Gain",
+            "dietary_restrictions": ["vegan"],
+        }
+    )
+
+    # 1. Stage 1: menu_filtering_node
+    ev1 = [e async for e in menu_filtering_node(None, ctx)][0]
+    filtered = ev1.actions.state_delta["filtered_menu_items"]
+    assert "Shiok" in filtered
+    assert len(filtered["Shiok"]) > 0
+    # Update mock context state for next stage
+    ctx.state.update(ev1.actions.state_delta)
+
+    # 2. Stage 2: llm_dish_selection_node
+    ev2 = [e async for e in llm_dish_selection_node(None, ctx)][0]
+    assert "llm_candidate_plans" in ev2.actions.state_delta
+    ctx.state.update(ev2.actions.state_delta)
+
+    # 3. Stage 3: macro_sizing_and_verification_node
+    ev3 = [e async for e in macro_sizing_and_verification_node(None, ctx)][-1]
+    assert "suggested_meal_plans" in ev3.actions.state_delta
+    plans = ev3.actions.state_delta["suggested_meal_plans"]
+    assert len(plans) > 0
+    assert plans[0]["canteen_name"] == "Shiok"
+
+
+

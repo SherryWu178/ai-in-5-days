@@ -112,6 +112,14 @@ async def pre_clarification_node(node_input: Any, ctx: Context) -> AsyncGenerato
     """
     user_text = str(node_input).strip() if node_input else ""
 
+    # If the user is replying to our verification prompt, fast-forward straight to user_reverification_node
+    if ctx.state.get("plan_presented_for_verification"):
+        yield Event(
+            output=node_input,
+            actions=EventActions(route="verify"),
+        )
+        return
+
     # Current state values
     current_canteen = ctx.state.get("canteen_preference")
     current_goal = ctx.state.get("nutrition_goal")
@@ -156,17 +164,27 @@ async def pre_clarification_node(node_input: Any, ctx: Context) -> AsyncGenerato
         if parsed.canteen_preference and not extracted_canteen:
             extracted_canteen = parsed.canteen_preference
         if parsed.nutrition_goal and not extracted_goal:
+            goal_lower = parsed.nutrition_goal.lower()
             for g in VALID_NUTRITION_GOALS:
-                if g.lower() == parsed.nutrition_goal.lower():
+                if g.lower() == goal_lower:
                     extracted_goal = g
                     break
+            if not extracted_goal:
+                if any(w in goal_lower for w in ["protein", "pretain", "protain", "muscle", "bulk", "gain"]):
+                    extracted_goal = "High Protein for Muscle Gain"
+                elif any(w in goal_lower for w in ["fat", "cut", "loss", "lose", "weight", "calorie", "lean"]):
+                    extracted_goal = "Cut Down Body Fat"
+                elif any(w in goal_lower for w in ["gi", "glycemic", "sugar", "diabetes"]):
+                    extracted_goal = "Low GI"
         if parsed.dietary_restrictions:
             extracted_restrictions = list(set(extracted_restrictions + parsed.dietary_restrictions))
         if parsed.custom_target_macros:
             extracted_macros = parsed.custom_target_macros.model_dump()
     except Exception as e:
         logger.warning("LLM extraction encountered an error: %s. Using heuristics.", e)
-        text_lower = user_text.lower()
+
+    text_lower = user_text.lower()
+    if not extracted_canteen:
         if "shiok" in text_lower and "streat" not in text_lower:
             extracted_canteen = "Shiok"
         elif "streat" in text_lower and "shiok" not in text_lower:
@@ -174,20 +192,24 @@ async def pre_clarification_node(node_input: Any, ctx: Context) -> AsyncGenerato
         elif "both" in text_lower or ("shiok" in text_lower and "streat" in text_lower):
             extracted_canteen = "Both"
 
-        if "muscle" in text_lower or "bulk" in text_lower or "high protein" in text_lower:
+    if not extracted_goal:
+        if any(w in text_lower for w in ["protein", "pretain", "protain", "prtain", "protin", "muscle", "bulk", "gain", "hypertrophy", "strength"]):
             extracted_goal = "High Protein for Muscle Gain"
-        elif "fat" in text_lower or "cut" in text_lower or "weight loss" in text_lower or "low calorie" in text_lower:
+        elif any(w in text_lower for w in ["fat", "cut", "weight loss", "lose weight", "low calorie", "lean", "slim", "shred"]):
             extracted_goal = "Cut Down Body Fat"
-        elif "low gi" in text_lower or "glycemic" in text_lower or "diabetes" in text_lower:
+        elif any(w in text_lower for w in ["low gi", "glycemic", "diabetes", "diabetic", "sugar", "insulin"]):
             extracted_goal = "Low GI"
-        elif "no specific" in text_lower or "general" in text_lower:
+        elif any(w in text_lower for w in ["no specific", "general"]):
             extracted_goal = "No Specific"
 
-        if "halal" in text_lower or "no pork" in text_lower:
+    if "halal" in text_lower or "no pork" in text_lower:
+        if "halal" not in extracted_restrictions:
             extracted_restrictions.append("halal")
-        if "vegan" in text_lower:
+    if "vegan" in text_lower:
+        if "vegan" not in extracted_restrictions:
             extracted_restrictions.append("vegan")
-        if "vegetarian" in text_lower:
+    if "vegetarian" in text_lower:
+        if "vegetarian" not in extracted_restrictions:
             extracted_restrictions.append("vegetarian")
 
     # Default fallback if still not specified
@@ -227,5 +249,5 @@ async def pre_clarification_node(node_input: Any, ctx: Context) -> AsyncGenerato
             parts=[types.Part.from_text(text=summary_message)],
         ),
         output=state_delta,
-        actions=EventActions(state_delta=state_delta),
+        actions=EventActions(state_delta=state_delta, route="plan"),
     )

@@ -161,3 +161,19 @@ class NutritionState(BaseModel):
         default=None,
         description="Any disagreement or modifications requested by the user during reverification.",
     )
+    filtered_menu_items: Optional[Dict[str, List[Dict[str, Any]]]] = Field(
+        default=None,
+        description="Intermediate state: canteen menu items filtered by dietary restrictions.",
+    )
+    llm_candidate_plans: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Intermediate state: raw candidate dish selection and initial portion proposals from the LLM.",
+    )
+    plan_presented_for_verification: Optional[bool] = Field(
+        default=False,
+        description="Whether the current meal plans have been presented to the user for interactive confirmation.",
+    )
+    reverification_round: Optional[int] = Field(
+        default=0,
+        description="Number of replanning rounds executed so far.",
+    )

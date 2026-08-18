@@ -22,6 +22,7 @@ from google import genai
 from google.adk.agents.context import Context
 from google.adk.events.event import Event
 from google.adk.events.event_actions import EventActions
+from google.adk.events.request_input import RequestInput
 from google.genai import types
 from pydantic import BaseModel, Field
 
@@ -64,21 +65,40 @@ def _extract_text(node_input: Any) -> str:
 async def user_reverification_node(node_input: Any, ctx: Context) -> AsyncGenerator[Event, None]:
     """Node: User-Reverification.
 
-    Purpose: Present suggested_meal_plans to the user and evaluate their approval.
+    Purpose: Present suggested_meal_plans interactively to the user and evaluate their approval or modifications.
     Routing Logic:
-    - If user agrees: Route to 'approved' and conclude workflow.
-    - If user disagrees/has modifications: Update user_feedback in state and route to 'replan' (back to Planning Node).
+    - Phase 1 (Initial Presentation): Emits customer-facing prompt and RequestInput asking for confirmation without routing to 'approved', pausing for reply.
+    - Phase 2 (User Reply Evaluation):
+      - If user agrees: Route to 'approved' and conclude workflow.
+      - If user disagrees/protests items: Extract protested items into dietary_restrictions, emit entertaining customer-facing replanning message, and route to 'replan'.
     """
     user_text = _extract_text(node_input)
+    presented = ctx.state.get("plan_presented_for_verification", False)
+    round_num = ctx.state.get("reverification_round", 0)
 
-    # If this is the initial arrival right after planning without separate user reply:
-    if not user_text or isinstance(node_input, list):
+    # Phase 1: If this is the initial arrival right after planning without separate user reply
+    if not presented or (not user_text and isinstance(node_input, list)):
+        presentation_msg = (
+            "👨‍🍳 **Your personalized Singapore Canteen Meal Plans are ready above!**\n\n"
+            "Take a look at the exact USDA macro breakdowns and portion weights. "
+            "**Do these dishes look good to confirm, or would you like to swap any items out "
+            "(e.g., remove fish, change portion sizes, switch canteens)?**"
+        )
+        state_delta = {"plan_presented_for_verification": True}
         yield Event(
-            output="Plans presented for verification.",
-            actions=EventActions(route="approved"),
+            content=types.Content(
+                role="model",
+                parts=[types.Part.from_text(text=presentation_msg)],
+            ),
+            output="Plans presented for verification. Waiting for confirmation.",
+            actions=EventActions(state_delta=state_delta),
+        )
+        yield RequestInput(
+            message=presentation_msg,
         )
         return
 
+    # Phase 2: User has responded to our confirmation prompt
     prompt = (
         "You are evaluating a user's response to suggested nutrition meal plans for Singapore canteens.\n"
         "Determine if the user agrees/approves the meal plan or wants changes/has feedback.\n\n"
@@ -104,7 +124,7 @@ async def user_reverification_node(node_input: Any, ctx: Context) -> AsyncGenera
         text_lower = user_text.lower()
         disagreement_signals = [
             "no", "change", "different", "instead", "less", "more", "swap", "replace",
-            "modify", "don't like", "disagree", "adjust", "portion"
+            "modify", "don't like", "disagree", "adjust", "portion", "remove", "without"
         ]
         if any(w in text_lower for w in disagreement_signals):
             user_agreed = False
@@ -115,10 +135,10 @@ async def user_reverification_node(node_input: Any, ctx: Context) -> AsyncGenera
 
     if user_agreed:
         success_msg = (
-            "✅ **Meal Plan Approved!**\n\n"
+            "✅ **Meal Plan Officially Approved!**\n\n"
             "Your personalized Singapore canteen meal plan is confirmed and saved. "
             "All portions and macronutrients have been estimated and optimized for your goals. "
-            "Bon appétit!"
+            "Bon appétit! 🍽️"
         )
         yield Event(
             content=types.Content(
@@ -129,12 +149,29 @@ async def user_reverification_node(node_input: Any, ctx: Context) -> AsyncGenera
             actions=EventActions(route="approved"),
         )
     else:
+        # Extract protested foods/ingredients to exclude in Stage 1 menu filtering
+        text_lower = (feedback_text or user_text).lower()
+        current_restrictions = list(ctx.state.get("dietary_restrictions") or [])
+        protest_keywords = ["fish", "seafood", "pork", "tofu", "chicken", "beef", "egg", "spicy"]
+        protested_added = []
+        for pk in protest_keywords:
+            if pk in text_lower and pk not in current_restrictions:
+                current_restrictions.append(pk)
+                protested_added.append(pk)
+
+        protest_note = f" (Excluding protested item(s): {', '.join(protested_added)})" if protested_added else ""
         feedback_msg = (
-            f"🔄 **Updating Meal Plan**\n\n"
-            f"Received your feedback: *'{feedback_text}'*\n"
-            "Routing back to the Planning Node to regenerate your meal recommendations and recalculate USDA macros..."
+            f"👨‍🍳 **Heard loud and clear! Updating your Canteen Menu...**\n\n"
+            f"Received your feedback: *'{feedback_text}'*{protest_note}\n\n"
+            f"Sending our AI chef back into the Singapore canteen kitchen! We are removing any unwanted dishes, "
+            f"selecting fresh complementary alternatives from today's live menu, and re-calculating your exact USDA gram portions. One moment please..."
         )
-        state_delta = {"user_feedback": feedback_text}
+        state_delta = {
+            "user_feedback": feedback_text,
+            "dietary_restrictions": current_restrictions,
+            "plan_presented_for_verification": False,
+            "reverification_round": round_num + 1,
+        }
         yield Event(
             content=types.Content(
                 role="model",

@@ -109,8 +109,10 @@ async def intent_classifier_node(node_input: Any, ctx: Context) -> Event:
         query_lower = user_query.lower()
         food_keywords = [
             "food", "eat", "meal", "diet", "nutrition", "calorie", "macro", "protein",
-            "canteen", "shiok", "streat", "lunch", "dinner", "breakfast", "dish", "menu",
-            "low gi", "fat", "muscle", "halal", "vegan", "vegetarian", "singapore", "healthy"
+            "pretain", "protain", "prtain", "protin", "canteen", "shiok", "streat",
+            "lunch", "dinner", "breakfast", "dish", "menu", "low gi", "glycemic", "diabetes",
+            "fat", "cut", "weight", "loss", "muscle", "bulk", "gain", "gains", "hypertrophy",
+            "halal", "vegan", "vegetarian", "singapore", "healthy"
         ]
         is_related = any(k in query_lower for k in food_keywords)
 
