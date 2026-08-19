@@ -239,4 +239,26 @@ def estimate_dish_nutrition(
     elif "soup" in dish_lower:
         return query_usda_nutrition("abc_soup_broth", portion_grams)
     else:
-        return query_usda_nutrition(dish_name, portion_grams)
+        return query_usda_nutrition_with_guidance(dish_name, portion_grams)
+
+
+def query_usda_nutrition_with_guidance(food_name: str, portion_grams: float = 100.0) -> Dict[str, Any]:
+    """Queries USDA nutrition and returns structured error guidance for self-correction if ambiguous."""
+    clean_name = food_name.lower().replace("-", "_").replace(" ", "_")
+    exact_match = clean_name in USDA_FDC_DATABASE
+
+    res = query_usda_nutrition(food_name, portion_grams)
+
+    if not exact_match:
+        available_keys = list(USDA_FDC_DATABASE.keys())[:8]
+        guidance = (
+            f"GUIDED SUGGESTION: '{food_name}' was mapped via fallback heuristic to '{res.get('matched_fdc_item')}'. "
+            f"If inaccurate, self-correct by selecting from standard USDA ingredients: {available_keys}."
+        )
+        res["error_guidance"] = guidance
+        res["is_exact_match"] = False
+    else:
+        res["error_guidance"] = None
+        res["is_exact_match"] = True
+
+    return res

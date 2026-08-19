@@ -59,3 +59,8 @@ environment:
   required_vars:
     - GEMINI_API_KEY (or GOOGLE_API_KEY for Gemini AI Studio)
     - GOOGLE_GENAI_USE_VERTEXAI=1 (when authenticating via GCP Vertex AI)
+
+
+notes:
+  - flash 3.7 should be used for easier task, pro 3.1 should eb used for harder tasks
+  - temperature should not be specified in llm calls

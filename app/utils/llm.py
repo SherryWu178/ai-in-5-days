@@ -23,6 +23,22 @@ from google import genai
 
 logger = logging.getLogger(__name__)
 
+# Strategic Model Routing Configuration (Cost & Latency vs Deep Reasoning)
+FAST_MODEL = os.environ.get("FAST_MODEL", "gemini-3.7-flash")
+REASONING_PRO_MODEL = os.environ.get("REASONING_PRO_MODEL", "gemini-3.1-pro")
+
+
+def get_model_for_task(task_type: str = "fast") -> str:
+    """Returns the optimal Gemini model based on task complexity.
+
+    Args:
+        task_type: 'fast' for classification/intake/memory (gemini-3.7-flash),
+                   'reasoning' for multi-dish clinical nutrition & USDA planning (gemini-3.1-pro).
+    """
+    if task_type in ("reasoning", "planning", "clinical"):
+        return os.environ.get("REASONING_PRO_MODEL", REASONING_PRO_MODEL)
+    return os.environ.get("FAST_MODEL", FAST_MODEL)
+
 
 def load_env_file() -> None:
     """Loads environment variables from .env file if present."""

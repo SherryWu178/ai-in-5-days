@@ -141,3 +141,30 @@ def filter_menu_items(
                     })
 
     return eligible_items
+
+
+def filter_menu_items_with_guidance(
+    canteen_name: Optional[str] = None,
+    dietary_restrictions: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """Returns filtered eligible menu dishes with guided error instructions for LLM self-correction if no matches exist."""
+    items = filter_menu_items(canteen_name, dietary_restrictions)
+    if not items:
+        all_facilities = get_canteen_menu(None)
+        all_canteen_names = [f.get("canteen_name") for f in all_facilities]
+        guidance = (
+            f"GUIDED ERROR: No menu dishes matched canteen='{canteen_name}' with restrictions={dietary_restrictions}. "
+            f"Self-Correction Instructions: 1) Try querying the other Singapore canteen ({all_canteen_names}), "
+            f"2) Consider relaxing secondary restrictions while keeping strict medical allergies, or "
+            f"3) Formulate vegetarian or steamed options from available stations."
+        )
+        return {
+            "success": False,
+            "items": [],
+            "error_guidance": guidance,
+        }
+    return {
+        "success": True,
+        "items": items,
+        "error_guidance": None,
+    }

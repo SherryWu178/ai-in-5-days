@@ -75,10 +75,26 @@ _save_profiles_to_disk()
 
 
 def get_user_profile_memory(user_id: str) -> Optional[UserProfileMemory]:
+    """Queries user profile from database adapter with in-memory fallback."""
+    try:
+        from ..memory.vector_store import vector_memory_store
+        db_prof = vector_memory_store.get_profile(user_id)
+        if db_prof:
+            _MEMORY_STORE[user_id] = db_prof
+            return db_prof
+    except Exception:
+        pass
+
     _load_profiles_from_disk()
     return _MEMORY_STORE.get(user_id)
 
 
 def save_user_profile_memory(memory: UserProfileMemory) -> None:
+    """Persists user profile across in-memory cache, JSON disk, and persistent Vector DB."""
     _MEMORY_STORE[memory.user_id] = memory
     _save_profiles_to_disk()
+    try:
+        from ..memory.vector_store import vector_memory_store
+        vector_memory_store.upsert_profile(memory)
+    except Exception as e:
+        logger.debug("Database sync skipped: %s", e)

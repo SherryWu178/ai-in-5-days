@@ -91,9 +91,7 @@ async def user_reverification_node(node_input: Any, ctx: Context) -> AsyncGenera
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
-                    response_schema=ReverificationDecision,
-                    temperature=0.0,
-                ),
+                    response_schema=ReverificationDecision,                ),
             )
             decision = ReverificationDecision.model_validate_json(response.text)
             user_agreed = decision.user_agreed

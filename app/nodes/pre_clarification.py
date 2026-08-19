@@ -149,20 +149,29 @@ async def pre_clarification_node(node_input: Any, ctx: Context) -> AsyncGenerato
     extracted_restrictions = current_restrictions or []
     extracted_macros = current_macros
 
-    from ..utils.llm import get_genai_client
+    from ..utils.llm import get_genai_client, get_model_for_task
+    from ..observability import log_agent_action, trace_span
     client = get_genai_client()
     if client:
         try:
-            response = await client.aio.models.generate_content(
-                model=MODEL,
-                contents=extraction_prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=ClarificationExtraction,
-                    temperature=0.0,
-                ),
-            )
-            parsed = ClarificationExtraction.model_validate_json(response.text)
+            with trace_span("pre_clarification_extraction", attributes={"user_text": user_text[:50]}) as span:
+                model_name = get_model_for_task("fast")
+                response = await client.aio.models.generate_content(
+                    model=model_name,
+                    contents=extraction_prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema=ClarificationExtraction,                    ),
+                )
+                parsed = ClarificationExtraction.model_validate_json(response.text)
+                log_agent_action(
+                    logger=logger,
+                    node_name="pre_clarification_node",
+                    intended_action="Extract user canteen preference, goal, and restrictions",
+                    outcome=f"Extracted goal='{parsed.nutrition_goal}', canteen='{parsed.canteen_preference}'",
+                    user_id=ctx.state.get("user_id"),
+                    duration_ms=span.duration_ms,
+                )
             if parsed.canteen_preference and not extracted_canteen:
                 extracted_canteen = parsed.canteen_preference
             if parsed.nutrition_goal and not extracted_goal:

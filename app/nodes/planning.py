@@ -551,12 +551,13 @@ async def llm_dish_selection_node(node_input: Any, ctx: Context) -> AsyncGenerat
     )
 
     candidate_plans_dict = None
-    from ..utils.llm import get_genai_client
+    from ..utils.llm import get_genai_client, get_model_for_task
     client = get_genai_client()
     if client:
         try:
+            model_name = get_model_for_task("planning")
             response = await client.aio.models.generate_content(
-                model=MODEL,
+                model=model_name,
                 contents=llm_prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",

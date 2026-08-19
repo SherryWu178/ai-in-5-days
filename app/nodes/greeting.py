@@ -150,9 +150,7 @@ async def preference_extraction_node(node_input: Any, ctx: Context) -> AsyncGene
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
-                    response_schema=MemoryResolutionDecision,
-                    temperature=0.0,
-                ),
+                    response_schema=MemoryResolutionDecision,                ),
             )
             decision = MemoryResolutionDecision.model_validate_json(response.text)
         except Exception as e:
@@ -185,7 +183,13 @@ async def preference_extraction_node(node_input: Any, ctx: Context) -> AsyncGene
         permanent_dietary_restrictions=clean_restr,
     )
 
-    save_user_profile_memory(updated_mem)
+    # Execute memory persistence asynchronously as a non-blocking background task
+    try:
+        import asyncio
+        loop = asyncio.get_running_loop()
+        loop.run_in_executor(None, save_user_profile_memory, updated_mem)
+    except Exception:
+        save_user_profile_memory(updated_mem)
 
     restr_display = ", ".join(updated_mem.permanent_dietary_restrictions) if updated_mem.permanent_dietary_restrictions else "None"
     memory_msg = (

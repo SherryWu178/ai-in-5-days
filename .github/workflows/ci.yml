@@ -1,0 +1,37 @@
+name: CI - Singapore Canteen Nutrition Specialist Agent
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+
+    - name: Install Dependencies
+      run: |
+        uv sync --all-extras --dev
+
+    - name: Run Pytest Test Suite & ADK EvalSet
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        FAST_MODEL: "gemini-3.7-flash"
+        REASONING_PRO_MODEL: "gemini-3.1-pro"
+      run: |
+        PYTHONPATH=. uv run pytest -v tests/

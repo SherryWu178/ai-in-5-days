@@ -107,21 +107,30 @@ async def intent_classifier_node(node_input: Any, ctx: Context) -> Event:
         f"User Message: {user_query}"
     )
 
-    from ..utils.llm import get_genai_client
+    from ..utils.llm import get_genai_client, get_model_for_task
+    from ..observability import log_agent_action, trace_span
     client = get_genai_client()
     if client:
         try:
-            response = await client.aio.models.generate_content(
-                model=MODEL,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=IntentClassification,
-                    temperature=0.0,
-                ),
-            )
-            classification = IntentClassification.model_validate_json(response.text)
-            is_related = classification.is_singapore_food_recommendation
+            with trace_span("intent_classification", attributes={"query": user_query[:50]}) as span:
+                model_name = get_model_for_task("fast")
+                response = await client.aio.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema=IntentClassification,
+                    ),
+                )
+                classification = IntentClassification.model_validate_json(response.text)
+                is_related = classification.is_singapore_food_recommendation
+                log_agent_action(
+                    logger=logger,
+                    node_name="intent_classifier_node",
+                    intended_action="Classify query intent for Singapore food recommendation",
+                    outcome=f"is_related={is_related} (intent='{classification.detected_intent}')",
+                    duration_ms=span.duration_ms,
+                )
         except Exception as e:
             logger.warning("LLM intent classification failed (%s), using keyword fallback.", e)
             client = None
