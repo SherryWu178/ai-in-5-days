@@ -62,6 +62,11 @@ resource "google_cloud_run_v2_service" "canteen_agent_service" {
         value = "true"
       }
 
+      env {
+        name  = "DATABASE_URL"
+        value = "postgresql://${google_sql_user.canteen_db_user.name}:${google_sql_user.canteen_db_user.password}@/${google_sql_database.canteen_db.name}?host=/cloudsql/${google_sql_database_instance.canteen_db_instance.connection_name}"
+      }
+
       liveness_probe {
         http_get {
           path = "/api/health"
@@ -73,7 +78,8 @@ resource "google_cloud_run_v2_service" "canteen_agent_service" {
   }
 
   depends_on = [
-    google_project_service.apis
+    google_project_service.apis,
+    google_sql_database_instance.canteen_db_instance
   ]
 }
 

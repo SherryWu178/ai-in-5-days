@@ -299,3 +299,39 @@ async def test_classifier_greeting_routes_to_food_recommendation():
         MockContext(state={"suggested_meal_plans": [{"id": 1}]}),
     )
     assert ev_confirm.actions.route == "food_recommendation"
+
+
+@pytest.mark.asyncio
+async def test_cross_session_profile_memory_persistence():
+    """Verify that user profile preferences persist across completely new sessions."""
+    from app.nodes.greeting import greeting_node
+    from app.tools.preference_memory import get_user_profile_memory, save_user_profile_memory
+    from app.state import UserProfileMemory
+
+    test_user = "persistence_test_user@google.com"
+
+    # 1. Update user profile memory in Session 1
+    updated_profile = UserProfileMemory(
+        user_id=test_user,
+        preferred_canteen="Shiok",
+        default_nutrition_goal="Cut Down Body Fat",
+        permanent_dietary_restrictions=["dairy-free", "halal"],
+    )
+    save_user_profile_memory(updated_profile)
+
+    # 2. Simulate Session 2 starting completely fresh (empty context state for test_user)
+    fresh_session_ctx = MockContext(state={"user_id": test_user})
+    greeting_events = [e async for e in greeting_node("start", fresh_session_ctx)]
+
+    assert len(greeting_events) >= 1
+    state_delta = greeting_events[0].actions.state_delta
+
+    # Verify Session 2 automatically inherited preferences saved in Session 1
+    assert state_delta["canteen_preference"] == "Shiok"
+    assert state_delta["nutrition_goal"] == "Cut Down Body Fat"
+    assert "dairy-free" in state_delta["dietary_restrictions"]
+    assert "halal" in state_delta["dietary_restrictions"]
+
+    # Verify retrieved persistent memory is reflected in greeting text
+    assert "Shiok" in greeting_events[0].content.parts[0].text
+    assert "Cut Down Body Fat" in greeting_events[0].content.parts[0].text

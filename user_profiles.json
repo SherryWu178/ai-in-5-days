@@ -40,5 +40,14 @@
     "permanent_dietary_restrictions": [
       "vegan"
     ]
+  },
+  "persistence_test_user@google.com": {
+    "user_id": "persistence_test_user@google.com",
+    "preferred_canteen": "Shiok",
+    "default_nutrition_goal": "Cut Down Body Fat",
+    "permanent_dietary_restrictions": [
+      "dairy-free",
+      "halal"
+    ]
   }
 }
