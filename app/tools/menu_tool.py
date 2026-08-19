@@ -39,10 +39,18 @@ def load_raw_menu() -> Dict[str, Any]:
         return json.load(f)
 
 
+def save_live_menu(menu_data: Dict[str, Any]) -> None:
+    """Admin Portal function: validates and saves today's live day menu JSON."""
+    if "facilities" not in menu_data or not isinstance(menu_data["facilities"], list):
+        raise ValueError("Invalid menu schema: missing 'facilities' list.")
+    with open(MENU_FILE_PATH, "w", encoding="utf-8") as f:
+        json.dump(menu_data, f, indent=2)
+
+
 def get_available_canteens() -> List[str]:
     """Returns the names of all available corporate canteens in Singapore."""
     data = load_raw_menu()
-    return [fac.get("canteen_name", "") for fac in data.get("facilities", []) if fac.get("canteen_name")]
+    return [fac.get("canteen_name", "").rstrip("!") for fac in data.get("facilities", []) if fac.get("canteen_name")]
 
 
 def get_canteen_menu(canteen_name: Optional[str] = None) -> List[Dict[str, Any]]:
@@ -59,10 +67,10 @@ def get_canteen_menu(canteen_name: Optional[str] = None) -> List[Dict[str, Any]]
     if not canteen_name or canteen_name.lower() in ["both", "all", "any"]:
         return facilities
 
-    target_name = canteen_name.strip().lower()
+    target_name = canteen_name.strip().lower().rstrip("!")
     return [
         fac for fac in facilities
-        if fac.get("canteen_name", "").strip().lower() == target_name
+        if fac.get("canteen_name", "").strip().lower().rstrip("!") == target_name
     ]
 
 

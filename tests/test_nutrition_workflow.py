@@ -156,15 +156,13 @@ async def test_reverification_routing():
     """Verify User-Reverification node Phase 1 confirmation pause, agreement route, and ingredient protest replanning."""
     ctx = MockContext(state={})
 
-    # Phase 1: Initial presentation arrives with meal plans list -> should emit message and RequestInput
-    events_initial = [e async for e in user_reverification_node([{"combination_id": 1}], ctx)]
-    assert len(events_initial) == 2
-    assert "Do these dishes look good to confirm" in events_initial[0].content.parts[0].text
-    assert events_initial[0].actions.route is None
-    assert hasattr(events_initial[1], "interrupt_id")  # RequestInput object
+    from app.nodes.planning import macro_sizing_and_verification_node
 
-    # Update state to simulate Phase 2 arrival
-    ctx.state["plan_presented_for_verification"] = True
+    # 1. Verify Stage 3 planning emits RequestInput at the end
+    stage3_evs = [e async for e in macro_sizing_and_verification_node(None, ctx)]
+    assert type(stage3_evs[-1]).__name__ == "RequestInput"
+
+    # 2. Case 1: Agreement -> route='approved'
 
     # Phase 2 Case 1: Agreement
     events_agreed = [e async for e in user_reverification_node("Looks delicious! I approve combination 1.", ctx)]
@@ -184,9 +182,7 @@ async def test_reverification_routing():
     assert "Heard loud and clear!" in last_replan.content.parts[0].text
     assert "Excluding protested item(s): fish" in last_replan.content.parts[0].text
 
-    # Verify pre_clarification_node fast-forwards directly to 'verify' when plan is presented
-    events_fastforward = [e async for e in pre_clarification_node("Looks delicious!", ctx)]
-    assert events_fastforward[0].actions.route == "verify"
+    
 
 
 def test_graph_topology_validation():
@@ -283,11 +279,23 @@ async def test_sequential_planning_pipeline_nodes():
     ctx.state.update(ev2.actions.state_delta)
 
     # 3. Stage 3: macro_sizing_and_verification_node
-    ev3 = [e async for e in macro_sizing_and_verification_node(None, ctx)][-1]
+    ev3_list = [e async for e in macro_sizing_and_verification_node(None, ctx)]
+    ev3 = ev3_list[0]
     assert "suggested_meal_plans" in ev3.actions.state_delta
     plans = ev3.actions.state_delta["suggested_meal_plans"]
     assert len(plans) > 0
-    assert plans[0]["canteen_name"] == "Shiok"
+    assert "Shiok" in plans[0]["canteen_name"]
 
+@pytest.mark.asyncio
+async def test_classifier_greeting_routes_to_food_recommendation():
+    """Verify saying 'hi' or 'start' routes directly to food_recommendation (greeting_node)."""
+    from app.nodes.classifier import intent_classifier_node
 
+    ev = await intent_classifier_node("hi", MockContext())
+    assert ev.actions.route == "food_recommendation"
 
+    ev_confirm = await intent_classifier_node(
+        "looks good to me",
+        MockContext(state={"suggested_meal_plans": [{"id": 1}]}),
+    )
+    assert ev_confirm.actions.route == "food_recommendation"

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Singapore Corporate Canteen Specialist | Shiok & StrEAT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #F8FAFC;
+        }
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+    <header class="bg-slate-900 text-white shadow-md border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white shadow-sm">
+                    SG
+                </div>
+                <div>
+                    <h1 class="text-base font-bold tracking-tight text-white flex items-center">
+                        Singapore Corporate Canteen Specialist AI
+                        <span class="ml-2.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            ADK 2.0 • Shiok & StrEAT
+                        </span>
+                    </h1>
+                    <p class="text-xs text-slate-400">
+                        MBC2 Floor 7 (Shiok!) & Floor 30 (StrEAT) • Deterministic USDA FoodData Central Macro Engine
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 space-x-2">
+                    <i data-lucide="user" class="w-4 h-4 text-emerald-400"></i>
+                    <span class="text-xs font-medium text-slate-300">Googler:</span>
+                    <select id="userTenantSelect" onchange="switchGooglerPersona(this.value)"
+                            class="bg-slate-900 text-xs font-semibold text-emerald-400 border border-slate-700 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="sherrywuyujin@google.com">sherrywuyujin@google.com (Muscle Gain / Avoid Fish)</option>
+                        <option value="alex.vegan@google.com">alex.vegan@google.com (Low GI / Vegan)</option>
+                        <option value="new.googler@google.com">new.googler@google.com (New Googler / Any)</option>
+                    </select>
+                </div>
+
+                <div class="flex bg-slate-800 p-0.5 rounded-lg border border-slate-700">
+                    <button onclick="switchTab('consultation')" id="tabBtnConsult"
+                            class="px-3 py-1.5 text-xs font-bold rounded-md transition bg-emerald-600 text-white">
+                        🍽️ Canteen Consultant
+                    </button>
+                    <button onclick="switchTab('admin')" id="tabBtnAdmin"
+                            class="px-3 py-1.5 text-xs font-semibold rounded-md transition text-slate-300 hover:text-white">
+                        ⚙️ Admin Menu Portal
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-950/80 border-t border-slate-800/80 px-4 py-2">
+            <div class="max-w-7xl mx-auto flex items-center justify-between text-xs">
+                <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded bg-emerald-950 border border-emerald-700/50 text-emerald-300 font-semibold">
+                        💾 Persistent Profile Memory
+                    </span>
+                    <span id="profileSummaryBadge" class="text-slate-300 font-medium">
+                        Loading saved profile memory...
+                    </span>
+                </div>
+                <div class="flex items-center space-x-2 text-slate-400">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <span>LLM Memory Resolver distinguishes permanent goals vs. transient today-only choices</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-5">
+        <div id="consultationView" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-8 flex flex-col h-[740px] bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                            Interactive Nutrition Session
+                        </span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="startTurn('start')"
+                                class="text-xs font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded border border-emerald-200 flex items-center transition">
+                            <i data-lucide="rotate-ccw" class="w-3 h-3 mr-1"></i>
+                            Reload Turn 0 Saved Profile
+                        </button>
+                    </div>
+                </div>
+
+                <div id="chatFeed" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-50/50">
+                </div>
+
+                <div id="hitlBar" class="hidden px-4 py-2.5 bg-emerald-50/90 border-t border-emerald-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700"></i>
+                        <span class="text-xs font-bold text-emerald-900">
+                            Human-in-the-Loop Confirmation Required:
+                        </span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="sendQuickReply('Looks delicious! I approve combination 1.')"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow-sm transition">
+                            ✅ Approve Plan & Save Memory
+                        </button>
+                        <button onclick="sendQuickReply('i prefer level 30 today')"
+                                class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold text-xs px-3 py-1.5 rounded-lg transition">
+                            📍 I prefer level 30 today (Transient)
+                        </button>
+                        <button onclick="sendQuickReply('hi i am not a vegan')"
+                                class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs px-3 py-1.5 rounded-lg transition">
+                            🔄 "hi i am not a vegan" (Negation Test)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="px-4 pt-2 pb-1 bg-white border-t border-slate-100 flex items-center space-x-2 overflow-x-auto">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Suggestions:</span>
+                    <button onclick="sendQuickReply('Recommend a high protein lunch at StrEAT today')"
+                            class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full font-medium transition whitespace-nowrap">
+                        💪 High Protein Lunch at StrEAT
+                    </button>
+                    <button onclick="sendQuickReply('i prefer level 30 today')"
+                            class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full font-medium transition whitespace-nowrap">
+                        🏙️ "i prefer level 30 today" (Transient test)
+                    </button>
+                    <button onclick="sendQuickReply('hi i am not a vegan')"
+                            class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full font-medium transition whitespace-nowrap">
+                        🥗 "hi i am not a vegan" (Negation)
+                    </button>
+                </div>
+
+                <div class="p-3 bg-white border-t border-slate-200">
+                    <form id="chatForm" onsubmit="handleSend(event)" class="flex items-center space-x-2">
+                        <input type="text" id="userInput" placeholder="Ask your Singapore Canteen Nutrition AI chef or confirm a plan..."
+                               class="flex-1 bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <button type="submit" id="sendButton"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg transition flex items-center space-x-1.5 disabled:opacity-50">
+                            <span>Send</span>
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-4 flex flex-col space-y-4">
+                <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                            <i data-lucide="calendar" class="w-4 h-4 text-emerald-600 mr-1.5"></i>
+                            Today's Live Singapore Menu
+                        </h3>
+                        <span id="menuBadge" class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded">
+                            2 Canteens Active
+                        </span>
+                    </div>
+
+                    <div id="canteenListContainer" class="space-y-2 max-h-[320px] overflow-y-auto custom-scrollbar">
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-xs text-slate-500">Source: GCP Cloud Storage / today_menu.json</span>
+                        <button onclick="switchTab('admin')" class="text-xs text-emerald-600 hover:text-emerald-800 font-bold underline">
+                            Manage Live Menu →
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center">
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-600 mr-1.5"></i>
+                        USDA Macro Adherence Budget
+                    </h4>
+
+                    <div class="space-y-3" id="macroBarsContainer">
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-700">Calories (kcal)</span>
+                                <span class="code-font text-emerald-700">540 / 650 kcal (83%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2">
+                                <div class="bg-emerald-500 h-2 rounded-full" style="width: 83%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-700">Protein (g)</span>
+                                <span class="code-font text-emerald-700">52g / ≥50g target (100%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-700">Carbohydrates (g)</span>
+                                <span class="code-font text-emerald-700">55g / ≤70g max (78%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2">
+                                <div class="bg-amber-500 h-2 rounded-full" style="width: 78%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-700">Dietary Fiber (g)</span>
+                                <span class="code-font text-emerald-700">11.4g / ≥6g min (100%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 text-white rounded-xl p-4 shadow-sm">
+                    <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center">
+                        <i data-lucide="award" class="w-4 h-4 mr-1.5"></i>
+                        Clinical Nutrition Rules
+                    </h4>
+                    <ul class="text-xs space-y-1.5 text-slate-300">
+                        <li>• **Cut Down Fat:** ≤550 kcal, ≥35g protein, ≤45g carbs</li>
+                        <li>• **High Protein:** ≤850 kcal, ≥50g protein, ≤80g carbs</li>
+                        <li>• **Low GI:** ≤600 kcal, ≥30g protein, high fiber greens</li>
+                        <li>• **Anti-Hallucination:** Every dish verified against today's live menu in grams.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="adminView" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-12 bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 flex items-center">
+                            <i data-lucide="database" class="w-5 h-5 text-emerald-600 mr-2"></i>
+                            Canteen Admin Portal — Live Menu JSON Ingestion
+                        </h2>
+                        <p class="text-xs text-slate-500">
+                            Upload or update today's live menu JSON for Singapore corporate canteens (`Shiok!` MBC2 Floor 7 & `StrEAT` MBC2 Floor 30).
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="saveAdminMenuEditor()"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition flex items-center shadow-sm">
+                            <i data-lucide="save" class="w-3.5 h-3.5 mr-1.5"></i>
+                            Validate & Publish Live Menu
+                        </button>
+                    </div>
+                </div>
+
+                <div id="adminFeedback" class="hidden mb-4 p-3 rounded-lg text-xs font-semibold"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                            Live Day Menu JSON Editor (`today_menu.json`)
+                        </label>
+                        <textarea id="adminMenuTextarea" rows="22"
+                                  class="w-full bg-slate-900 text-emerald-300 code-font text-xs p-3 rounded-lg border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                            Live Ingested Facilities & Stations Preview
+                        </label>
+                        <div id="adminMenuPreview" class="h-[460px] overflow-y-auto bg-slate-50 rounded-lg border border-slate-200 p-4 space-y-3 custom-scrollbar">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentUser = "sherrywuyujin@google.com";
+        let currentSessionId = "session_" + Math.random().toString(36).substring(2, 9);
+
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            fetchUserProfile(currentUser);
+            fetchLiveMenuSidebar();
+            startTurn("start");
+        });
+
+        function switchTab(tab) {
+            if (tab === "consultation") {
+                document.getElementById("consultationView").classList.remove("hidden");
+                document.getElementById("adminView").classList.add("hidden");
+                document.getElementById("tabBtnConsult").className = "px-3 py-1.5 text-xs font-bold rounded-md transition bg-emerald-600 text-white";
+                document.getElementById("tabBtnAdmin").className = "px-3 py-1.5 text-xs font-semibold rounded-md transition text-slate-300 hover:text-white";
+            } else {
+                document.getElementById("consultationView").classList.add("hidden");
+                document.getElementById("adminView").classList.remove("hidden");
+                document.getElementById("tabBtnConsult").className = "px-3 py-1.5 text-xs font-semibold rounded-md transition text-slate-300 hover:text-white";
+                document.getElementById("tabBtnAdmin").className = "px-3 py-1.5 text-xs font-bold rounded-md transition bg-emerald-600 text-white";
+                fetchMenuForEditor();
+            }
+        }
+
+        function switchGooglerPersona(userId) {
+            currentUser = userId;
+            currentSessionId = "session_" + Math.random().toString(36).substring(2, 9);
+            fetchUserProfile(currentUser);
+            startTurn("start");
+        }
+
+        async function fetchUserProfile(userId) {
+            try {
+                const res = await fetch("/api/user/profile?user_id=" + encodeURIComponent(userId));
+                const data = await res.json();
+                updateUserBanner(data.profile);
+            } catch (err) {
+                console.error("Error fetching profile:", err);
+            }
+        }
+
+        function updateUserBanner(prof) {
+            const badge = document.getElementById("profileSummaryBadge");
+            if (!prof) {
+                badge.textContent = `${currentUser} • Canteen: StrEAT • Goal: High Protein • Avoid: fish`;
+                return;
+            }
+            const restr = prof.permanent_dietary_restrictions && prof.permanent_dietary_restrictions.length
+                ? prof.permanent_dietary_restrictions.join(", ")
+                : "None";
+            badge.textContent = `${prof.user_id} • Persistent Canteen: ${prof.preferred_canteen || "StrEAT"} • Goal: ${prof.default_nutrition_goal || "No Specific"} • Avoid: ${restr}`;
+        }
+
+        async function fetchLiveMenuSidebar() {
+            try {
+                const res = await fetch("/api/admin/menu");
+                const data = await res.json();
+                renderSidebarMenu(data.facilities || []);
+            } catch (err) {
+                console.error("Error fetching live menu:", err);
+            }
+        }
+
+        function renderSidebarMenu(facilities) {
+            const container = document.getElementById("canteenListContainer");
+            container.innerHTML = "";
+            facilities.forEach(fac => {
+                const card = document.createElement("div");
+                card.className = "p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs";
+                const floorBadge = fac.location && fac.location.floor
+                    ? `<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold ml-1.5">Floor ${fac.location.floor}</span>`
+                    : "";
+                card.innerHTML = `
+                    <div class="font-bold text-slate-800 mb-1 flex items-center justify-between">
+                        <span>📍 ${fac.canteen_name}</span>
+                        ${floorBadge}
+                    </div>
+                    <div class="text-[11px] text-slate-500 space-y-0.5">
+                        ${(fac.stations || []).slice(0, 3).map(st => `
+                            <div class="truncate">• <b>${st.station_name}</b> (${st.items?.length || 0} dishes)</div>
+                        `).join("")}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function startTurn(msgText) {
+            currentSessionId = "session_" + Math.random().toString(36).substring(2, 9);
+            document.getElementById("chatFeed").innerHTML = "";
+            document.getElementById("hitlBar").classList.add("hidden");
+            await sendConsultationTurn(msgText);
+        }
+
+        async function sendQuickReply(text) {
+            const input = document.getElementById("userInput");
+            input.value = text;
+            await sendConsultationTurn(text);
+            input.value = "";
+        }
+
+        function handleSend(event) {
+            event.preventDefault();
+            const input = document.getElementById("userInput");
+            const text = input.value.trim();
+            if (!text) return;
+            appendChatBubble("user", text);
+            input.value = "";
+            sendConsultationTurn(text);
+        }
+
+        async function sendConsultationTurn(msgText) {
+            const sendBtn = document.getElementById("sendButton");
+            if (sendBtn) sendBtn.disabled = true;
+
+            try {
+                const res = await fetch("/api/consultation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_id: currentUser,
+                        session_id: currentSessionId,
+                        message: msgText
+                    })
+                });
+                const data = await res.json();
+
+                for (const ev of data.events) {
+                    if (ev.event_type === "message" && ev.text) {
+                        appendChatBubble("assistant", ev.text, ev.meal_plans);
+                    }
+                    if (ev.user_profile_memory) {
+                        updateUserBanner(ev.user_profile_memory);
+                    }
+                }
+
+                const inputField = document.getElementById("userInput");
+                if (data.waiting_for_confirmation) {
+                    document.getElementById("hitlBar").classList.remove("hidden");
+                    if (inputField) {
+                        inputField.disabled = false;
+                        inputField.placeholder = "Confirm plan, request ingredient swaps, or ask a question...";
+                    }
+                    if (sendBtn) sendBtn.disabled = false;
+                } else {
+                    document.getElementById("hitlBar").classList.add("hidden");
+                    if (inputField) {
+                        inputField.disabled = true;
+                        inputField.placeholder = "Session complete. Click 'Reload Turn 0 Saved Profile' to start a new consultation.";
+                    }
+                    if (sendBtn) sendBtn.disabled = true;
+                }
+            } catch (err) {
+                appendChatBubble("assistant", "⚠️ Error connecting to Singapore Canteen Specialist API: " + err);
+                if (sendBtn) sendBtn.disabled = false;
+            }
+        }
+
+        function appendChatBubble(role, text, mealPlans = null) {
+            const feed = document.getElementById("chatFeed");
+            const wrapper = document.createElement("div");
+
+            if (role === "user") {
+                wrapper.className = "flex justify-end";
+                wrapper.innerHTML = `
+                    <div class="max-w-xl bg-emerald-600 text-white rounded-2xl rounded-tr-none px-4 py-2.5 text-xs shadow-sm">
+                        ${text}
+                    </div>
+                `;
+            } else {
+                wrapper.className = "flex space-x-2.5";
+                let formatted = text
+                    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+                    .replace(/\*(.*?)\*/g, "<i>$1</i>")
+                    .replace(/`([^`]+)`/g, '<span class="bg-emerald-50 text-emerald-800 font-semibold px-1 py-0.5 rounded code-font">$1</span>')
+                    .replace(/\n/g, "<br>");
+
+                let cardsHtml = "";
+                if (mealPlans && mealPlans.length > 0) {
+                    cardsHtml = `
+                        <div class="mt-3 space-y-3">
+                            ${mealPlans.map((plan, idx) => `
+                                <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm">
+                                    <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-2.5">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="bg-emerald-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-full uppercase">
+                                                Option #${idx + 1}
+                                            </span>
+                                            <span class="font-bold text-slate-800 text-xs">
+                                                📍 ${plan.canteen_name} Canteen Combo
+                                            </span>
+                                        </div>
+                                        <div class="text-[11px] font-semibold text-slate-600">
+                                            Total: <span class="text-emerald-700 font-bold">${plan.total_calories_kcal} kcal</span> • ${plan.total_protein_g}g Protein
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2.5">
+                                        ${plan.dishes.map(d => `
+                                            <div class="p-2 bg-slate-50 rounded-lg border border-slate-100 text-xs">
+                                                <div class="font-bold text-slate-800">${d.name}</div>
+                                                <div class="text-[11px] text-slate-500 flex justify-between mt-1">
+                                                    <span>${d.station_name} • <b>${d.portion_grams}g</b></span>
+                                                    <span class="font-semibold text-emerald-700">${d.protein_g}g P</span>
+                                                </div>
+                                            </div>
+                                        `).join("")}
+                                    </div>
+                                    <div class="text-[11px] text-slate-600 bg-emerald-50/50 p-2 rounded-lg border border-emerald-100">
+                                        💡 <b>Clinical Rationale:</b> ${plan.nutritional_rationale}
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                    `;
+                }
+
+                wrapper.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-xs shrink-0">
+                        AI
+                    </div>
+                    <div class="flex-1 bg-white rounded-2xl rounded-tl-none p-4 text-xs border border-slate-200 shadow-sm">
+                        <div>${formatted}</div>
+                        ${cardsHtml}
+                    </div>
+                `;
+            }
+
+            feed.appendChild(wrapper);
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        async function fetchMenuForEditor() {
+            try {
+                const res = await fetch("/api/admin/menu");
+                const data = await res.json();
+                const textarea = document.getElementById("adminMenuTextarea");
+                textarea.value = JSON.stringify(data.raw_menu, null, 2);
+
+                const preview = document.getElementById("adminMenuPreview");
+                preview.innerHTML = (data.facilities || []).map(fac => `
+                    <div class="bg-white p-3.5 rounded-lg border border-slate-200 text-xs">
+                        <div class="font-bold text-slate-800 text-sm mb-1">
+                            📍 ${fac.canteen_name}
+                        </div>
+                        <div class="space-y-1">
+                            ${(fac.stations || []).map(st => `
+                                <div class="p-2 bg-slate-50 rounded">
+                                    <div class="font-semibold text-slate-700">${st.station_name}</div>
+                                    <div class="text-[11px] text-slate-500">
+                                        ${(st.items || []).map(i => i.name).join(", ")}
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                    </div>
+                `).join("");
+            } catch (err) {
+                console.error("Failed to load menu for editor:", err);
+            }
+        }
+
+        async function saveAdminMenuEditor() {
+            const feedback = document.getElementById("adminFeedback");
+            feedback.classList.remove("hidden", "bg-red-100", "text-red-800", "bg-emerald-100", "text-emerald-800");
+            try {
+                const rawJson = JSON.parse(document.getElementById("adminMenuTextarea").value);
+                const res = await fetch("/api/admin/menu", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(rawJson)
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    feedback.classList.add("bg-emerald-100", "text-emerald-800");
+                    feedback.textContent = "✅ " + result.message;
+                    fetchLiveMenuSidebar();
+                    fetchMenuForEditor();
+                } else {
+                    feedback.classList.add("bg-red-100", "text-red-800");
+                    feedback.textContent = "❌ " + (result.detail || "Validation Error");
+                }
+            } catch (err) {
+                feedback.classList.add("bg-red-100", "text-red-800");
+                feedback.textContent = "❌ Invalid JSON formatting: " + err.message;
+            }
+        }
+    </script>
+</body>
+</html>

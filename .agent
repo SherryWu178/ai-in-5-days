@@ -1,0 +1,61 @@
+name: singapore-canteen-specialist
+version: 1.0.0
+description: >
+  ADK 2.0 Graph Workflow Agent for Google Singapore Corporate Canteens (MBC2 Floor 7 Shiok! & Floor 30 StrEAT).
+  Features live JSON menu ingestion, deterministic USDA FoodData Central macro portion scaling (g),
+  Human-In-The-Loop confirmation (RequestInput), and LLM Transient vs. Permanent Memory Resolution.
+app_entrypoint: app.agent:app
+root_agent: nutrition_specialist_workflow
+default_model: gemini-3.7-flash
+
+architecture:
+  root_workflow:
+    name: nutrition_specialist_workflow
+    edges:
+      - START -> intent_classifier_node
+      - intent_classifier_node -> { decline: decline_node, food_recommendation: food_recommendation_subgraph }
+
+  subgraph:
+    name: food_recommendation_subgraph
+    state_schema: NutritionState (app.state)
+    pipeline:
+      1. greeting_node:
+         - Turn 0 zero-LLM welcome greeting.
+         - Loads long-term multi-tenant Profile Memory (app.tools.preference_memory).
+      2. pre_clarification_node:
+         - Extracts canteen preference (Shiok/StrEAT/Both), clinical goal (Cut Down Body Fat, High Protein, Low GI, No Specific), and dietary restrictions.
+         - Supports explicit restriction negation ("hi i am not a vegan", "remove fish").
+      3. menu_filtering_node:
+         - Filters live daily menu JSON (today_menu.json / app.tools.menu_tool) against user restrictions.
+      4. llm_dish_selection_node:
+         - Dynamic LLM culinary pairing selection.
+      5. macro_sizing_and_verification_node:
+         - Deterministic USDA FoodData Central macro portion g scaling (app.tools.usda_tool).
+         - Emits meal combinations and pauses with RequestInput for human confirmation.
+      6. user_reverification_node:
+         - Single-phase feedback evaluation.
+         - If approved -> routes to preference_extraction_node.
+         - If protested ("remove fish") -> extracts item to dietary_restrictions and routes back to pre_clarification_node.
+      7. preference_extraction_node:
+         - Dedicated LLM Memory Resolver (MemoryResolutionDecision).
+         - Distinguishes transient today-only requests ("i prefer level 30 today") from permanent profile memory updates.
+
+commands:
+  test:
+    description: "Run all 17 automated unit, ADK EvalSet, and FastAPI web API tests"
+    command: "PYTHONPATH=. .venv/bin/python -m pytest -v tests/"
+    alternative: "uv run pytest -v tests/"
+
+  run_web_portal:
+    description: "Launch FastAPI interactive multi-tenant consultant & admin live menu portal"
+    command: ".venv/bin/python -m uvicorn web.server:app --host 127.0.0.1 --port 8000 --reload"
+    url: "http://127.0.0.1:8000"
+
+  run_adk_dev_ui:
+    description: "Launch Google ADK 2.0 Agent Playground / Dev UI"
+    command: "uv run adk dev"
+
+environment:
+  required_vars:
+    - GEMINI_API_KEY (or GOOGLE_API_KEY for Gemini AI Studio)
+    - GOOGLE_GENAI_USE_VERTEXAI=1 (when authenticating via GCP Vertex AI)

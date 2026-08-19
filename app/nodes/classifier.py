@@ -27,7 +27,7 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
-MODEL = "gemini-3.6-flash"
+MODEL = "gemini-3.7-flash"
 
 
 class IntentClassification(BaseModel):
@@ -82,6 +82,23 @@ async def intent_classifier_node(node_input: Any, ctx: Context) -> Event:
             actions=EventActions(route="decline"),
         )
 
+    # If the user already has an active meal plan consultation in progress
+    if ctx.state.get("suggested_meal_plans") or ctx.state.get("canteen_preference"):
+        return Event(
+            output=user_query,
+            actions=EventActions(route="food_recommendation"),
+        )
+
+    # Route greetings and confirmation/feedback signals directly to food_recommendation
+    query_lower = user_query.lower()
+    if query_lower in ["hi", "hello", "hey", "start", "greeting", "hi!", "hello!", "hey!"] or any(
+        w in query_lower for w in ["looks good", "approve", "confirm", "yes", "ok", "okay", "sure", "great", "fine", "swap", "remove", "prefer"]
+    ):
+        return Event(
+            output=user_query,
+            actions=EventActions(route="food_recommendation"),
+        )
+
     prompt = (
         "You are an Intent Classifier for an expert Nutrition Specialist AI dedicated to "
         "corporate canteen food recommendations in Singapore (e.g. Shiok and StrEAT canteens).\n\n"
@@ -90,21 +107,25 @@ async def intent_classifier_node(node_input: Any, ctx: Context) -> Event:
         f"User Message: {user_query}"
     )
 
-    try:
-        client = genai.Client()
-        response = await client.aio.models.generate_content(
-            model=MODEL,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=IntentClassification,
-                temperature=0.0,
-            ),
-        )
-        classification = IntentClassification.model_validate_json(response.text)
-        is_related = classification.is_singapore_food_recommendation
-    except Exception as e:
-        logger.warning("LLM intent classification failed (%s), using keyword fallback.", e)
+    from ..utils.llm import get_genai_client
+    client = get_genai_client()
+    if client:
+        try:
+            response = await client.aio.models.generate_content(
+                model=MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=IntentClassification,
+                    temperature=0.0,
+                ),
+            )
+            classification = IntentClassification.model_validate_json(response.text)
+            is_related = classification.is_singapore_food_recommendation
+        except Exception as e:
+            logger.warning("LLM intent classification failed (%s), using keyword fallback.", e)
+            client = None
+    if not client:
         # Fallback keywords
         query_lower = user_query.lower()
         food_keywords = [

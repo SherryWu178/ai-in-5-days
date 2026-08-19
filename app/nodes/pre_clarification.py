@@ -36,7 +36,7 @@ from ..state import (
 
 logger = logging.getLogger(__name__)
 
-MODEL = "gemini-3.6-flash"
+MODEL = "gemini-3.7-flash"
 
 
 class ClarificationExtraction(BaseModel):
@@ -149,39 +149,41 @@ async def pre_clarification_node(node_input: Any, ctx: Context) -> AsyncGenerato
     extracted_restrictions = current_restrictions or []
     extracted_macros = current_macros
 
-    try:
-        client = genai.Client()
-        response = await client.aio.models.generate_content(
-            model=MODEL,
-            contents=extraction_prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=ClarificationExtraction,
-                temperature=0.0,
-            ),
-        )
-        parsed = ClarificationExtraction.model_validate_json(response.text)
-        if parsed.canteen_preference and not extracted_canteen:
-            extracted_canteen = parsed.canteen_preference
-        if parsed.nutrition_goal and not extracted_goal:
-            goal_lower = parsed.nutrition_goal.lower()
-            for g in VALID_NUTRITION_GOALS:
-                if g.lower() == goal_lower:
-                    extracted_goal = g
-                    break
-            if not extracted_goal:
-                if any(w in goal_lower for w in ["protein", "pretain", "protain", "muscle", "bulk", "gain"]):
-                    extracted_goal = "High Protein for Muscle Gain"
-                elif any(w in goal_lower for w in ["fat", "cut", "loss", "lose", "weight", "calorie", "lean"]):
-                    extracted_goal = "Cut Down Body Fat"
-                elif any(w in goal_lower for w in ["gi", "glycemic", "sugar", "diabetes"]):
-                    extracted_goal = "Low GI"
-        if parsed.dietary_restrictions:
-            extracted_restrictions = list(set(extracted_restrictions + parsed.dietary_restrictions))
-        if parsed.custom_target_macros:
-            extracted_macros = parsed.custom_target_macros.model_dump()
-    except Exception as e:
-        logger.warning("LLM extraction encountered an error: %s. Using heuristics.", e)
+    from ..utils.llm import get_genai_client
+    client = get_genai_client()
+    if client:
+        try:
+            response = await client.aio.models.generate_content(
+                model=MODEL,
+                contents=extraction_prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=ClarificationExtraction,
+                    temperature=0.0,
+                ),
+            )
+            parsed = ClarificationExtraction.model_validate_json(response.text)
+            if parsed.canteen_preference and not extracted_canteen:
+                extracted_canteen = parsed.canteen_preference
+            if parsed.nutrition_goal and not extracted_goal:
+                goal_lower = parsed.nutrition_goal.lower()
+                for g in VALID_NUTRITION_GOALS:
+                    if g.lower() == goal_lower:
+                        extracted_goal = g
+                        break
+                if not extracted_goal:
+                    if any(w in goal_lower for w in ["protein", "pretain", "protain", "muscle", "bulk", "gain"]):
+                        extracted_goal = "High Protein for Muscle Gain"
+                    elif any(w in goal_lower for w in ["fat", "cut", "loss", "lose", "weight", "calorie", "lean"]):
+                        extracted_goal = "Cut Down Body Fat"
+                    elif any(w in goal_lower for w in ["gi", "glycemic", "sugar", "diabetes"]):
+                        extracted_goal = "Low GI"
+            if parsed.dietary_restrictions:
+                extracted_restrictions = list(set(extracted_restrictions + parsed.dietary_restrictions))
+            if parsed.custom_target_macros:
+                extracted_macros = parsed.custom_target_macros.model_dump()
+        except Exception as e:
+            logger.warning("LLM extraction encountered an error: %s. Using heuristics.", e)
 
     text_lower = user_text.lower()
     if not extracted_canteen:

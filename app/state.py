@@ -134,9 +134,30 @@ class MealCombination(BaseModel):
     )
 
 
+class UserProfileMemory(BaseModel):
+    """Persistent user preferences and profile stored across sessions."""
+
+    user_id: str = Field(description="Unique identifier for the user (e.g. LDAP/email).")
+    preferred_canteen: Optional[str] = Field(default=None, description="Default preferred canteen ('Shiok', 'StrEAT', 'Both').")
+    default_nutrition_goal: Optional[NutritionGoalType] = Field(default=None, description="Saved default nutrition goal.")
+    permanent_dietary_restrictions: List[str] = Field(default_factory=list, description="Persistent dietary restrictions or avoided foods.")
+
+
 class NutritionState(BaseModel):
     """State schema tracking the user's nutrition consultation workflow."""
 
+    user_id: Optional[str] = Field(
+        default="default_user",
+        description="Unique user identifier for multi-tenant profile isolation.",
+    )
+    greeting_presented: Optional[bool] = Field(
+        default=False,
+        description="True once the Turn 0 memory greeting has been presented to the user.",
+    )
+    user_profile_memory: Optional[UserProfileMemory] = Field(
+        default=None,
+        description="Long-term user preferences pre-loaded from memory.",
+    )
     canteen_preference: Optional[str] = Field(
         default=None,
         description="Which of the two available canteens the user prefers ('Shiok', 'StrEAT', or both).",

@@ -20,6 +20,7 @@ from google.adk.apps import App
 from google.adk.workflow import START, Workflow
 
 from .nodes.classifier import decline_node, intent_classifier_node
+from .nodes.greeting import greeting_node
 from .state import NutritionState
 from .subgraphs.food_recommendation import food_recommendation_subgraph
 
@@ -30,12 +31,13 @@ nutrition_specialist_workflow = Workflow(
     name="nutrition_specialist_workflow",
     description=(
         "Expert Nutrition Specialist Graph Workflow Agent for Singapore corporate canteens. "
-        "Evaluates query intent, declines non-Singapore food queries, and executes "
-        "the Food Recommendation SubGraph with USDA FoodData Central calculations."
+        "Starts with Turn 0 greeting & memory display, evaluates query intent, declines non-Singapore "
+        "food queries, and executes the Food Recommendation SubGraph with USDA FoodData Central calculations."
     ),
     state_schema=NutritionState,
     edges=[
-        (START, intent_classifier_node),
+        (START, greeting_node),
+        (greeting_node, intent_classifier_node),
         (
             intent_classifier_node,
             {

@@ -1,0 +1,44 @@
+{
+  "sherrywuyujin@google.com": {
+    "user_id": "sherrywuyujin@google.com",
+    "preferred_canteen": "StrEAT",
+    "default_nutrition_goal": "High Protein for Muscle Gain",
+    "permanent_dietary_restrictions": [
+      "fish",
+      "beef",
+      "spicy",
+      "chicken",
+      "vegan"
+    ]
+  },
+  "sherrywuyujin": {
+    "user_id": "sherrywuyujin",
+    "preferred_canteen": "StrEAT",
+    "default_nutrition_goal": "High Protein for Muscle Gain",
+    "permanent_dietary_restrictions": [
+      "fish"
+    ]
+  },
+  "alex.vegan@google.com": {
+    "user_id": "alex.vegan@google.com",
+    "preferred_canteen": "Shiok",
+    "default_nutrition_goal": "Low GI",
+    "permanent_dietary_restrictions": [
+      "vegan"
+    ]
+  },
+  "new.googler@google.com": {
+    "user_id": "new.googler@google.com",
+    "preferred_canteen": "Both",
+    "default_nutrition_goal": "No Specific",
+    "permanent_dietary_restrictions": []
+  },
+  "test_tenant@google.com": {
+    "user_id": "test_tenant@google.com",
+    "preferred_canteen": "Shiok",
+    "default_nutrition_goal": "Low GI",
+    "permanent_dietary_restrictions": [
+      "vegan"
+    ]
+  }
+}

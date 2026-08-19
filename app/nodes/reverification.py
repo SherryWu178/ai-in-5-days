@@ -28,7 +28,7 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
-MODEL = "gemini-3.6-flash"
+MODEL = "gemini-3.7-flash"
 
 
 class ReverificationDecision(BaseModel):
@@ -73,54 +73,35 @@ async def user_reverification_node(node_input: Any, ctx: Context) -> AsyncGenera
       - If user disagrees/protests items: Extract protested items into dietary_restrictions, emit entertaining customer-facing replanning message, and route to 'replan'.
     """
     user_text = _extract_text(node_input)
-    presented = ctx.state.get("plan_presented_for_verification", False)
     round_num = ctx.state.get("reverification_round", 0)
 
-    # Phase 1: If this is the initial arrival right after planning without separate user reply
-    if not presented or (not user_text and isinstance(node_input, list)):
-        presentation_msg = (
-            "👨‍🍳 **Your personalized Singapore Canteen Meal Plans are ready above!**\n\n"
-            "Take a look at the exact USDA macro breakdowns and portion weights. "
-            "**Do these dishes look good to confirm, or would you like to swap any items out "
-            "(e.g., remove fish, change portion sizes, switch canteens)?**"
-        )
-        state_delta = {"plan_presented_for_verification": True}
-        yield Event(
-            content=types.Content(
-                role="model",
-                parts=[types.Part.from_text(text=presentation_msg)],
-            ),
-            output="Plans presented for verification. Waiting for confirmation.",
-            actions=EventActions(state_delta=state_delta),
-        )
-        yield RequestInput(
-            message=presentation_msg,
-        )
-        return
-
-    # Phase 2: User has responded to our confirmation prompt
+    # Evaluate user's response to the meal plan RequestInput
     prompt = (
         "You are evaluating a user's response to suggested nutrition meal plans for Singapore canteens.\n"
         "Determine if the user agrees/approves the meal plan or wants changes/has feedback.\n\n"
         f"User Response: {user_text}\n"
     )
 
-    try:
-        client = genai.Client()
-        response = await client.aio.models.generate_content(
-            model=MODEL,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=ReverificationDecision,
-                temperature=0.0,
-            ),
-        )
-        decision = ReverificationDecision.model_validate_json(response.text)
-        user_agreed = decision.user_agreed
-        feedback_text = decision.user_feedback or user_text
-    except Exception as e:
-        logger.warning("LLM reverification evaluation failed: %s. Using heuristics.", e)
+    from ..utils.llm import get_genai_client
+    client = get_genai_client()
+    if client:
+        try:
+            response = await client.aio.models.generate_content(
+                model=MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=ReverificationDecision,
+                    temperature=0.0,
+                ),
+            )
+            decision = ReverificationDecision.model_validate_json(response.text)
+            user_agreed = decision.user_agreed
+            feedback_text = decision.user_feedback or user_text
+        except Exception as e:
+            logger.warning("LLM reverification evaluation failed: %s. Using heuristics.", e)
+            client = None
+    if not client:
         text_lower = user_text.lower()
         disagreement_signals = [
             "no", "change", "different", "instead", "less", "more", "swap", "replace",

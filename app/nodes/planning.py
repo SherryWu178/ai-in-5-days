@@ -24,6 +24,7 @@ from google.adk.agents import Agent
 from google.adk.agents.context import Context
 from google.adk.events.event import Event
 from google.adk.events.event_actions import EventActions
+from google.adk.events.request_input import RequestInput
 from google.genai import types
 from pydantic import BaseModel, Field
 
@@ -38,7 +39,7 @@ from ..tools.usda_tool import (
 
 logger = logging.getLogger(__name__)
 
-MODEL = "gemini-3.6-flash"
+MODEL = "gemini-3.7-flash"
 
 
 class PlanningOutput(BaseModel):
@@ -550,21 +551,23 @@ async def llm_dish_selection_node(node_input: Any, ctx: Context) -> AsyncGenerat
     )
 
     candidate_plans_dict = None
-    try:
-        client = genai.Client()
-        response = await client.aio.models.generate_content(
-            model=MODEL,
-            contents=llm_prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=CandidateMealPlans,
-                temperature=0.2,
-            ),
-        )
-        parsed_candidates = CandidateMealPlans.model_validate_json(response.text)
-        candidate_plans_dict = parsed_candidates.model_dump()
-    except Exception as e:
-        logger.warning("Hybrid LLM dish selection failed or offline (%s), candidate plans empty.", e)
+    from ..utils.llm import get_genai_client
+    client = get_genai_client()
+    if client:
+        try:
+            response = await client.aio.models.generate_content(
+                model=MODEL,
+                contents=llm_prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=CandidateMealPlans,
+                    temperature=0.2,
+                ),
+            )
+            parsed_candidates = CandidateMealPlans.model_validate_json(response.text)
+            candidate_plans_dict = parsed_candidates.model_dump()
+        except Exception as e:
+            logger.warning("Hybrid LLM dish selection failed or offline (%s), candidate plans empty.", e)
 
     state_delta = {"llm_candidate_plans": candidate_plans_dict}
     yield Event(
@@ -633,6 +636,12 @@ async def macro_sizing_and_verification_node(node_input: Any, ctx: Context) -> A
         ),
         output=combinations_dump,
         actions=EventActions(state_delta=state_delta),
+    )
+    yield RequestInput(
+        message=(
+            "Do these Singapore canteen dishes look good to confirm, or would you like to swap"
+            " any items out (e.g. remove fish, switch canteens)?"
+        ),
     )
 
 
