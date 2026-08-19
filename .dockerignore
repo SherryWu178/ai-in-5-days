@@ -1,0 +1,14 @@
+.git
+.github
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+tests/
+deployment/terraform/.terraform*
+deployment/terraform/*.tfstate*
+*.db
+.env
+.DS_Store
